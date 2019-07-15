@@ -1,0 +1,235 @@
+﻿1. 변수
+	- 변수란 물건을 보관했다가 필요할 때 꺼내 쓰는 일종의 저장소 입니다. 이때 변수에 물건을 저장 할 때 같은 종류의 물건들을 보관해야합니다.
+	
+	1-1. 변수 선언
+		1-1-1. 변수
+		
+		- 자바스크립트 변수 선언에는 var 키워드를 사용한다. 키워드란 특정 목적으로 만들어진 자바스크립트 요소로 보면 된다.
+
+		ex)
+			var 변수이름;
+			var 변수이름 = 값;
+
+			var name = "roh";
+			var age = 30, address = "서울 마포구 합정";
+
+		- 세미콜론은 문장의 끝을 의미.
+		- 변수는 = 연산자를 기준으로 var에 의해서 변수이름으로 우측의 데이터를 저장(대입).
+		- var 는 영구적 변수이다. delete 연산자를 사용하면 에러가 발생한다.
+		- 변수 선언시 주의사항
+			= 숫자로 시작하면 안된다.
+			= 대소문자를 구분하기 때문에 변수 사용시 주의한다.
+			= 변수는 소문자로 시작한다.(꼭 해야 하는 규칙은 아니다)
+			= 상수(변하지 않는 값)을 선언 할 때는 전부 대문자로 선언한다.
+			= 여러 문자가 조합된 경우 표기법을 선택하여 선언한다.(필자는 camelcase를 선호)
+			= 이미 정의된 예약어는 사용이 불가능하다.
+				* break, do, if, switch, typeof, case, else, in, this, var, catch, false, instanceof, throw, void, continue, finally, new, true, while, default, for, null, try, with, delete, function, return
+
+		- 변수를 선언 할 수 있는 키워드는 es2015 이후에 let, const가 추가되었다.
+			= var 는 function-scoped 키워드 이다.
+
+				// var는 function-scope이기 때문에 for문이 끝난다음에 i를 호출하면 값이 출력이 잘 된다.
+				// 이건 var가 hoisting이 되었기 때문이다.
+				for(var j=0; j<10; j++) {
+				  console.log('j', j)
+				}
+				console.log('after loop j is ', j) // after loop j is 10
+
+
+				// 아래의 경우에는 에러가 발생한다.
+				function counter () {
+				  for(var i=0; i<10; i++) {
+					console.log('i', i)
+				  }
+				}
+				counter()
+				console.log('after loop i is', i) // ReferenceError: i is not defined
+
+			= javascript에서는 immediately-invoked function expression (or IIFE, pronounced "iffy")라는것이 있다. IIFE로 function-scope인거 처럼 만들 수가 있다.
+
+				// IIFE를 사용하면
+				// i is not defined가 뜬다.
+				(function() {
+				  // var 변수는 여기까지 hoisting이 된다.
+				  for(var i=0; i<10; i++) {
+					console.log('i', i)
+				  }
+				})()
+				console.log('after loop i is', i) // ReferenceError: i is not defined
+
+			= 위에서 잠깐 말했지만 IIFE는 function-scope처럼 보이게 만들어주지만 결과가 같지는 않다.
+
+				// 이 코드를 실행하면 에러없이 after loop i is 10이 호출된다.
+				(function() {
+				  for(i=0; i<10; i++) {
+					console.log('i', i)
+				  }
+				})()
+				console.log('after loop i is', i) // after loop i is 10
+
+			= 위에 코드가 아무 에러 없이 실행되는 이유는 i가 hoisting이 되어서 global variable이 되었기 때문이다.
+
+				var i
+				(function() {
+				  for(i=0; i<10; i++) {
+					console.log('i', i)
+				  }
+				})()
+				console.log('after loop i is', i) // after loop i is 10
+
+			= IIFE는 쓰는데 이렇게 hoisting이 된다면 이런 hoisting을 막기 위해 use strict를 사용한다.
+
+				// 아까랑 다르게 실행하면 i is not defined라는 에러가 발생한다.
+				(function() {
+				  'use strict'
+				  for(i=0; i<10; i++) {
+					console.log('i', i)
+				  }
+				})()
+				console.log('after loop i is', i) // ReferenceError: i is not defined
+
+
+			= let, const(block-scoped)에 대해서 알아보자.
+
+				// 이미 만들어진 변수이름으로 재선언했는데 아무런 문제가 발생하지 않는다.
+				var a = 'test'
+				var a = 'test2'
+
+				// hoisting으로 인해 ReferenceError에러가 안난다.
+				c = 'test'
+				var c
+
+			= let, const를 사용하면 var를 사용할때보다 상당히 이점이 많다.
+			= 두개의 공통점은 var와 다르게 변수 재선언 불가능이다.
+			= let과 const의 차이점은 변수의 immutable여부이다.
+			= let은 변수에 재할당이 가능하지만, const는 변수 재선언, 재할당 모두 불가능하다.
+
+				// let
+				let a = 'test'
+				let a = 'test2' // Uncaught SyntaxError: Identifier 'a' has already been declared
+				a = 'test3'     // 가능
+
+				// const
+				const b = 'test'
+				const b = 'test2' // Uncaught SyntaxError: Identifier 'a' has already been declared
+				b = 'test3'    // Uncaught TypeError:Assignment to constant variable.
+
+			= let, const가 hoisting이 발생하지 않는건 아니다.
+			= var가 function-scoped로 hoisting이 되었다면
+			= let, const는 block-scoped단위로 hoisting이 일어나는데
+
+				c = 'test' // ReferenceError: c is not defined
+				let c
+
+			= 위에 코드에서 ReferenceError가 발생한 이유는 tdz(temporal dead zone)때문이다.
+			= let은 값을 할당하기전에 변수가 선언 되어있어야 하는데 그렇지 않기 때문에 에러가 난다.
+			= 이건 const도 마찬가지인데 좀 더 엄격하다.
+
+				// let은 선언하고 나중에 값을 할당이 가능하지만
+				let dd
+				dd = 'test'
+
+				// const 선언과 동시에 값을 할당 해야한다.
+				const aa // Missing initializer in const declaration
+
+			= 이렇게 javascript에 tdz가 필요한 이유는 동적언어이다 보니깐 runtime type check 가 필요해서이다.
+
+		1-1-1. 변수 종류
+			1-1-1-1. 전역변수
+
+			1-1-1-2. 지역변수
+
+			1-1-1-3. 매개변수(파라미터)
+
+			1-1-1-4. 멤버변수(프로퍼티)
+
+		
+	1-2. 데이터 종류
+		- 데이터 형이란 변수에 저장할 수 있는 값의 타입을 의미합니다. javascript는 다음과 같은 데이터 타입을 저장할 수 있습니다.
+	
+		1-2-1. 숫자(number)
+			- 숫자형은 일반적인 숫자로 이해하면 쉽습니다.
+			- 숫자형은 크게 정수형과 실수형으로 나뉩니다. 10진수와 실수형은 일반적으로 사용하는 숫자이며 16진수 또한 사용이 가능합니다.
+			- 숫자형은 숫자표현 및 산술연산을 하는데 사용되는 데이터 입니다.
+
+			var number = 10;
+
+		1-2-2. 문자열(string)
+			- 문자열은 문자열을 표현하는데 사용되는 데이터 타입입니다. 
+			- 문자 또한 문자열처럼 똑같은 표현을 합니다.
+
+			var name = "rohjoohyeon";
+
+		1-2-3. 논리(boolean)
+			- true(참), false(거짓) 값을 가지는 논리 데이터 타입입니다. 
+			 
+			 var bValue = true;
+
+		1-2-4. 정의되지 않은 변수(undefined)
+			- 변수를 만든 후 초기화를 하지 않았거나 값을 할당하지 않은 상태를 의미합니다.
+
+			console.log(test); // test는 선언되지 않은 변수
+
+		1-2-5. 널(null)
+			- 값이 없을을 나타내는 데이터 타입입니다.
+			- null 은 의도적으로 변수를 초기화 하는 경우에 많이 사용됩니다.
+
+			var nullCheck = null; // 확인을 위한 의도적인 null 초기화
+
+		1-2-6. 객체 (Object)
+			1-2-6-1. 함수 (Function)
+				- 함수(function)란 하나의 특별한 목적의 작업을 수행하도록 설계된 독립적인 블록을 의미합니다.
+				- 이러한 함수는 필요할 때마다 호출하여 해당 작업을 반복해서 수행할 수 있습니다.
+
+				- 자바스크립트에서 함수의 정의는 function 키워드로 시작되며, 다음과 같은 구성요소를 가집니다.
+				= 함수의 이름
+				= 괄호 안에 쉼표(,)로 구분되는 함수의 매개변수(parameter)
+				= 중괄호({})로 둘러싸인 자바스크립트 실행문
+
+				function func1(data1)
+				{
+					console.log(data1);
+				}
+
+				func1("test");
+
+				function func2()
+				{
+					this.name = "rohjoohyeon";
+				}
+
+				var valFunc2 = new func2();
+
+				console.log(valFunc2.name);
+
+			1-2-6-2. 배열 (Array)
+				- 일반변수는 데이터를 하나만 저장할 수 있지만 배열변수는 변수 하나에 여러개의 데이터를 저장할 수 있다.
+				- 연관있는 데이터를 하나로 묶어서 관리할 때 주로 이용한다.
+				- [ ]대괄호에 데이터를 넣어 표현하고 ( , )콤마로 구분한다.
+				- 비슷한 종류의 변수를 여러개 만들지 않아도 되어 반복문을 같이 사용하는 경우 코드를 간결하게 처리할 수 있다.
+				- 배열의 index는 0부터 시작한다.
+
+				var array1 = ["test", 10, "테스트"];
+
+				var array2 = new Array();
+				array2[0] = "test";
+				array2[1] = 10;
+				array2[2] = "테스트";
+
+				var array3 = new Array("test", 10, "테스트");
+
+			1-2-6-3. 날짜 (Date)
+				- 날짜와 시간(년, 월, 일, 시, 분, 초, 밀리초(천분의 1초(millisecond, ms)))을 위한 메소드를 제공하는 빌트인 객체이면서 생성자 함수이다.
+
+				var date1 = new Date(0);
+				var date2 = new Date('May 16, 2019 17:22:10');
+				var date3 = new Date('2019/05/16/17:22:10');
+
+			1-2-6-4. 정규식 (RegExp)
+
+		1-2-7. 심볼(symbol)
+			- 심볼 타입은 ECMAScript 6부터 새롭게 추가된 타입입니다.
+			- 심볼은 유일하고 변경할 수 없는 타입으로, 객체의 프로퍼티를 위한 식별자로 사용할 수 있습니다.
+
+			var sym = Symbol("javascript");  // symbol 타입
+			var symObj = Object(sym);        // object 타입
